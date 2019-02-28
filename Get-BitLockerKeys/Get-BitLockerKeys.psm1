@@ -16,8 +16,7 @@ function Get-BitLockerKeys
     Param
     (
         # Param1 working directory
-        [Parameter(Mandatory=$true)]
-        $working_directory = "$env:OneDriveCommercial\IT Services - Network Documentation\PowerShell\SMA\BitLocker",
+        $working_directory = "$env:USERPROFILE",
 
         # Param2 searchbase
         [Parameter(Mandatory=$true)]
