@@ -1,6 +1,6 @@
 ﻿<#
 .Synopsis
-   Short description
+   Get the BitLocker keys for the volume(s) of one or many computers.
 .DESCRIPTION
    Long description
 .EXAMPLE
