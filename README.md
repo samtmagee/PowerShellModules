@@ -1,3 +1,3 @@
 # PowerShellModules
 
-PowerShell modules to help streamline network administration on Windows computers using.
+PowerShell modules to help streamline network administration on Windows computers.
