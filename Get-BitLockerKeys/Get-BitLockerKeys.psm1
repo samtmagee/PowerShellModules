@@ -23,6 +23,9 @@ function Get-BitLockerKeys
         [string[]]$ComputerName = "localhost"
     )
 
+    if ((Test-Path "$working_directory\PowerShell") -eq $false) {New-Item -ItemType Directory -Path "$working_directory\PowerShell"}
+    
+
     while ($true) {
         foreach ($remotecomputername in $ComputerName){
             Invoke-Command -ComputerName $remotecomputername -AsJob -ScriptBlock {
