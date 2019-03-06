@@ -23,13 +23,17 @@ function Set-WindowsProductKey
         [string]$ProductKey
     )
 
-    $service = Get-WmiObject -Query "select * from SoftwareLicensingService" -ComputerName $ComputerName
-    $service.InstallProductKey($ProductKey) | Out-Null
-    $service.RefreshLicenseStatus() | Out-Null
-
     Invoke-Command -ComputerName $ComputerName -ScriptBlock {
+
+        $service = Get-WmiObject -Query "select * from SoftwareLicensingService"
+        $service.InstallProductKey($using:ProductKey) | Out-Null
+        $service.RefreshLicenseStatus() | Out-Null
+        
         Start-Sleep -Seconds 5
+        
         $edition = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").EditionID
-        Write-Host "Current edition for $env:computername is $edition."
+
+        return [pscustomobject]@{"ComputerName"=$env:computername; "Edition"=$edition;};
+
     }
 }
