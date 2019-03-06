@@ -16,13 +16,14 @@ function Set-WindowsProductKey
     Param
     (
         # ComputerName
-        [Parameter[]]
-        $ComputerName="$env:computername",
+        [string[]]$ComputerName="$env:computername",
 
         # ProductKey
         [Parameter(Mandatory=$true)]
-        $ProductKey
+        [string]$ProductKey
     )
 
-    Invoke-Command -ComputerName $ComputerName -ScriptBlock { slmgr -ipk $ProductKey }
+    $service = Get-WmiObject -Query "select * from SoftwareLicensingService" -ComputerName $ComputerName
+    $service.InstallProductKey($ProductKey)
+    $service.RefreshLicenseStatus()
 }
