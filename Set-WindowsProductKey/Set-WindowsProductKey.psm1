@@ -27,7 +27,9 @@ function Set-WindowsProductKey
     $service.InstallProductKey($ProductKey) | Out-Null
     $service.RefreshLicenseStatus() | Out-Null
 
-    $edition = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").EditionID
-    Start-Sleep -Seconds 5
-    Write-Host "Current edition is $edition."
+    Invoke-Command -ComputerName $ComputerName -ScriptBlock {
+        Start-Sleep -Seconds 5
+        $edition = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").EditionID
+        Write-Host "Current edition for $env:computername is $edition."
+    }
 }
