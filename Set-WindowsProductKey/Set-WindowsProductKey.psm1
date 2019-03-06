@@ -16,8 +16,8 @@ function Set-WindowsProductKey
     Param
     (
         # ComputerName
-        [Parameter]
-        $ComputerName="localhost",
+        [Parameter[]]
+        $ComputerName="$env:computername",
 
         # ProductKey
         [Parameter(Mandatory=$true)]
