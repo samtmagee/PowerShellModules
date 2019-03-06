@@ -24,6 +24,10 @@ function Set-WindowsProductKey
     )
 
     $service = Get-WmiObject -Query "select * from SoftwareLicensingService" -ComputerName $ComputerName
-    $service.InstallProductKey($ProductKey)
-    $service.RefreshLicenseStatus()
+    $service.InstallProductKey($ProductKey) | Out-Null
+    $service.RefreshLicenseStatus() | Out-Null
+
+    $edition = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").EditionID
+    Start-Sleep -Seconds 5
+    Write-Host "Current edition is $edition."
 }
