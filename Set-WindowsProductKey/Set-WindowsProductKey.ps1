@@ -1,8 +1,8 @@
 ﻿<#
 .Synopsis
-   Change Windows product key on remote computer
+   Set the Windows product key.
 .DESCRIPTION
-   Long description
+   Set the Windows product key on a local or remote computer.
 .EXAMPLE
    Set-WindowsProductKey -ProductKey "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
    This will set the local machines product key.
