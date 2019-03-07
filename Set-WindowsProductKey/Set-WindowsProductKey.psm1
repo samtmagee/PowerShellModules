@@ -34,5 +34,5 @@ function Set-WindowsProductKey
         $edition = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").EditionID;
 
         return [pscustomobject]@{"ComputerName"=$env:computername; "Edition"=$edition;};
-    }
-}
+    };
+};
