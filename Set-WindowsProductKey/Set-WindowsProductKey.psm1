@@ -16,7 +16,7 @@ function Set-WindowsProductKey
     Param
     (
         # ComputerName
-        [string[]]$ComputerName="$env:computername",
+        [string[]]$ComputerName="localhost",
 
         # ProductKey
         [Parameter(Mandatory=$true)]
@@ -25,15 +25,14 @@ function Set-WindowsProductKey
 
     Invoke-Command -ComputerName $ComputerName -ScriptBlock {
 
-        $service = Get-WmiObject -Query "select * from SoftwareLicensingService"
-        $service.InstallProductKey($using:ProductKey) | Out-Null
-        $service.RefreshLicenseStatus() | Out-Null
+        $service = Get-WmiObject -Query "SELECT * FROM SoftwareLicensingService";
+        $service.InstallProductKey($using:ProductKey) | Out-Null;
+        $service.RefreshLicenseStatus() | Out-Null;
         
-        Start-Sleep -Seconds 5
+        Start-Sleep -Seconds 5;
         
-        $edition = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").EditionID
+        $edition = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").EditionID;
 
         return [pscustomobject]@{"ComputerName"=$env:computername; "Edition"=$edition;};
-
     }
 }
