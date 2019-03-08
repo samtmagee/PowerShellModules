@@ -72,4 +72,6 @@ function Get-BitLockerKeys
             Write-Host $counterchecks
             sleep -Seconds 1
     }
+    return $jobdata
 }
+Get-BitLockerKeys -ComputerName smagee-pc
