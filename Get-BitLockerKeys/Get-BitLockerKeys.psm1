@@ -15,9 +15,13 @@ function Get-BitLockerKeys
     [OutputType([int])]
     Param
     (
-        # Param2 searchbase
+        # Computer or computers to check for BitLocker keys
         [Parameter(Mandatory=$true)]
-        [string[]]$ComputerName = "localhost"
+        [string[]]$ComputerName = "localhost",
+
+        # Computer or computers to check for BitLocker keys
+        [Parameter(Mandatory=$true)]
+        [int]$TimeOut = 60
     )
 
     foreach ($remotecomputername in $ComputerName){
@@ -47,7 +51,7 @@ function Get-BitLockerKeys
     # Receive-Job
     [system.array]$jobdata = @()
     $counterchecks = 0
-    while ((Get-Job).count -ne 0 -and $counterchecks -lt 60){
+    while ((Get-Job).count -ne 0 -and $counterchecks -lt $TimeOut){
         foreach( $job in Get-Job) {
             if ($job.State -eq [System.Management.Automation.JobState]::Completed) {
                 $jobdata += Receive-Job $job
