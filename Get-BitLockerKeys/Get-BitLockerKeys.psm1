@@ -29,7 +29,7 @@ function Get-BitLockerKeys
 
             foreach ($mountpoint in $encryptedvolumes)
             {
-                $encryptedvolumesandkeys = Get-BitLockerVolume $mountpoint | select -ExpandProperty KeyProtector - | Where-Object {$_.KeyProtectorType -eq "RecoveryPassword"} | select KeyProtectorType,KeyProtectorId,RecoveryPassword #| ft -AutoSize KeyProtectorType,KeyProtectorId,RecoveryPassword
+                $encryptedvolumesandkeys = Get-BitLockerVolume $mountpoint | select -ExpandProperty KeyProtector - | Where-Object {$_.KeyProtectorType -eq "RecoveryPassword"} | select KeyProtectorType,KeyProtectorId,RecoveryPassword
 
                 $arraytoexport +=[pscustomobject]@{
                     'Date'=Get-Date
@@ -51,19 +51,19 @@ function Get-BitLockerKeys
         foreach( $job in Get-Job) {
             if ($job.State -eq [System.Management.Automation.JobState]::Completed) {
                 $jobdata += Receive-Job $job
-                Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Saved"
+                #Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Saved"
                 Remove-Job $job;
             } elseif ($job.State -eq [System.Management.Automation.JobState]::Failed) {
                 Remove-Job $job;
-                Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Failed"
+                #Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Failed"
             } elseif ($job.State -eq [System.Management.Automation.JobState]::Disconnected) {
                 Stop-Job $job;
                 Remove-Job $job;
-                Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Disconnected"
+                #Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Disconnected"
             }
         }
         $counterchecks ++
-        Write-Host $counterchecks
+        #Write-Host $counterchecks
         sleep -Seconds 1
 
     }
