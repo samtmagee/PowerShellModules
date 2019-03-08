@@ -26,7 +26,6 @@ function Get-BitLockerKeys
     if ((Test-Path "$working_directory\PowerShell") -eq $false) {New-Item -ItemType Directory -Path "$working_directory\PowerShell"}
     
 
-    while ($true) {
         foreach ($remotecomputername in $ComputerName){
             Invoke-Command -ComputerName $remotecomputername -AsJob -ScriptBlock {
 
@@ -86,5 +85,4 @@ function Get-BitLockerKeys
 
         Write-Host "Waiting to run again.  $(Get-Date -UFormat `"%Y/%m/%d %H:%M`")"
         sleep -Seconds (60 * 5)
-    }
 }
