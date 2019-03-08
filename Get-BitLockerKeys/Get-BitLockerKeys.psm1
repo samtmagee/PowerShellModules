@@ -4,9 +4,11 @@
 .DESCRIPTION
    Get the BitLocker key(s) for the volume(s) of one or many computers.
 .EXAMPLE
-   Example of how to use this cmdlet
+   Get-BitLockerKeys
+   Gets the BitLocker keys for the local machine with a timeout of 60 seconds.
 .EXAMPLE
-   Another example of how to use this cmdlet
+   Get-BitLockerKeys -ComputerName "fresco-desktop","frekky-desktop" -TimeOut 30
+   Gets the BitLocker keys for the computers fresco-desktop and frekky-desktop with a timeout of 30 seconds.
 #>
 function Get-BitLockerKeys
 {
