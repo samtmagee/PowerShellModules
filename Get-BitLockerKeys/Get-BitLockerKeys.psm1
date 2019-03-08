@@ -75,14 +75,4 @@ function Get-BitLockerKeys
                 sleep -Seconds 1
         }
 
-        [System.Array]$csvdata = Import-Csv (Get-ChildItem $working_directory -Filter "BitLocker_Keys*.csv").fullname
-        $csvdataunique = $csvdata | sort ComputerName,KeyProtectorId,RecoveryPassword -Unique
-        #$csvdataunique | ft -AutoSize
-        #$csvdata | measure
-        #$csvdataunique | measure
-        $csvdataunique | Export-Csv "$working_directory\BitLocker_Keys_Master.csv" -NoTypeInformation
-        Get-ChildItem $working_directory -Filter "BitLocker_Keys*.csv" | Remove-Item -Exclude "BitLocker_Keys_Master.csv"
-
-        Write-Host "Waiting to run again.  $(Get-Date -UFormat `"%Y/%m/%d %H:%M`")"
-        sleep -Seconds (60 * 5)
 }
