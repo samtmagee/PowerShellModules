@@ -53,7 +53,7 @@ function Get-BitLockerKeys
         #Receive-job
 
         $counterchecks = 0
-        while ((Get-Job).count -ne 0 -and $counterchecks -lt 100){
+        while ((Get-Job).count -ne 0 -and $counterchecks -lt 60){
                 foreach( $job in Get-Job) {
                     if ($job.State -eq [System.Management.Automation.JobState]::Completed) {
                         $jobdata = Receive-Job $job
