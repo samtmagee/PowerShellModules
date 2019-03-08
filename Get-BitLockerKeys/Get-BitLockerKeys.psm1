@@ -41,7 +41,7 @@ function Get-BitLockerKeys
                 }
             }
             $arraytoexport
-        }
+        } | Out-Null
     }
 
     # Receive-Job
@@ -70,4 +70,3 @@ function Get-BitLockerKeys
     return $jobdata | sort ComputerName,MountPoint | ft -AutoSize Date,ComputerName,MountPoint,KeyProtectorType,KeyProtectorId,RecoveryPassword
 
 }
-Get-BitLockerKeys -ComputerName "smagee-pc","jkirk-desktop","its-02"
