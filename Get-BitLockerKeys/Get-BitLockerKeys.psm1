@@ -11,16 +11,13 @@
 function Get-BitLockerKeys
 {
     [CmdletBinding()]
-    [Alias()]
-    [OutputType([int])]
     Param
     (
-        # Computer or computers to check for BitLocker keys
-        [Parameter(Mandatory=$true)]
+        # Computer or computers to check for BitLocker keys.
+        [Parameter(Position=0)]
         [string[]]$ComputerName = "localhost",
 
-        # Computer or computers to check for BitLocker keys
-        [Parameter(Mandatory=$true)]
+        # Timeout in seconds for the Invoke-Command AsJob to run.
         [int]$TimeOut = 60
     )
 
