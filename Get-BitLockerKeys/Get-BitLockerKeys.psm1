@@ -23,7 +23,6 @@ function Get-BitLockerKeys
         [string[]]$ComputerName = "localhost"
     )
 
-    if ((Test-Path "$working_directory\PowerShell") -eq $false) {New-Item -ItemType Directory -Path "$working_directory\PowerShell"}
     
 
         foreach ($remotecomputername in $ComputerName){
