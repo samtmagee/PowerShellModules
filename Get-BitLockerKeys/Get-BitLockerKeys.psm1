@@ -1,8 +1,8 @@
 ﻿<#
 .Synopsis
-   Get the BitLocker keys for the volume(s) of one or many computers.
+   Get the BitLocker key(s) for a computer.
 .DESCRIPTION
-   Long description
+   Get the BitLocker key(s) for the volume(s) of one or many computers.
 .EXAMPLE
    Example of how to use this cmdlet
 .EXAMPLE
