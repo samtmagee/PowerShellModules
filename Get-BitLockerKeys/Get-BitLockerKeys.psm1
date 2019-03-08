@@ -15,9 +15,6 @@ function Get-BitLockerKeys
     [OutputType([int])]
     Param
     (
-        # Param1 working directory
-        $working_directory = "$env:USERPROFILE",
-
         # Param2 searchbase
         [Parameter(Mandatory=$true)]
         [string[]]$ComputerName = "localhost"
@@ -53,10 +50,6 @@ function Get-BitLockerKeys
     while ((Get-Job).count -ne 0 -and $counterchecks -lt 60){
             foreach( $job in Get-Job) {
                 if ($job.State -eq [System.Management.Automation.JobState]::Completed) {
-                    $jobdata = Receive-Job $job
-                
-                            $jobdata | Export-Csv "$working_directory\BitLocker_Keys.csv" -NoTypeInformation -Append
-
                     Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Saved"
                     Remove-Job $job;
                 } elseif ($job.State -eq [System.Management.Automation.JobState]::Failed) {
