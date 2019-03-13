@@ -4,7 +4,6 @@
 .DESCRIPTION
    Get the current recommended build version for Windows 10 from the following website
    https://docs.microsoft.com/en-us/windows/windows-10/release-information
-
 .EXAMPLE
    Get-RecommendedOSBuild
 #>
