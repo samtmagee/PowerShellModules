@@ -16,6 +16,7 @@ function Send-WOL
     Param
     (
         # The mac address of the computer to wake
+        [Alias("streetAddress")]
         [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
@@ -39,8 +40,10 @@ function Send-WOL
         
         # data, length, ip address, port
         [void][System.Net.Sockets.UdpClient]::new().Send($_packet, 102, [ipaddress]$Broadcast, 9);
+        Write-Verbose -Message "Send-WOL to $_MAC";
     }
     End
     {
+        [void]"";
     }
 }
