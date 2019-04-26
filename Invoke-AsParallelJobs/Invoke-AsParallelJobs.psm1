@@ -18,7 +18,6 @@
 function Invoke-AsParallelJobs
 {
     [CmdletBinding()]
-    [Alias()]
     [OutputType([void])]
     Param
     (
@@ -56,14 +55,13 @@ function Invoke-AsParallelJobs
     }
     Process
     {
-        #[System.Collections.ArrayList]$results = @();
         while ( ($_jobs | Get-Job -ErrorAction SilentlyContinue).Count -gt 0) {
             (($_jobs | Get-Job -ErrorAction SilentlyContinue) | Wait-Job -Any -Timeout 10) | ForEach-Object {
                 if ($_.State -eq [System.Management.Automation.JobState]::Completed) {
                     $_ | & $OnComplete
                     [pscustomobject]@{
                         "ComputerName"=$_.Location;
-                        "State"="OK";
+                        "State"=$_.State;
                         "Result"=($_ | Receive-Job);
                     }
                     $_ | Remove-Job | Out-Null;
@@ -73,7 +71,7 @@ function Invoke-AsParallelJobs
                     $_ | & $OnFailure
                     [pscustomobject]@{
                         "ComputerName"=$_.Location;
-                        "State"="FAILED";
+                        "State"=$_.State;
                         "Result"=($_ | Receive-Job);
                     }
                     $_ | Remove-Job | Out-Null;
