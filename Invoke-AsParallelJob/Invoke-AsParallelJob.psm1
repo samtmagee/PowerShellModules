@@ -6,16 +6,16 @@
    It runs them in parallel using -job parameter to Invoke-Command.
    It returns the result from the job.
 .EXAMPLE
-   Invoke-AsParallelJobs -Credential $c -ComputerName "","" -Scriptblock {} -OnComplete {} -OnFailure {} -OnOther {}
+   Invoke-AsParallelJob -Credential $c -ComputerName "","" -Scriptblock {} -OnComplete {} -OnFailure {} -OnOther {}
 .EXAMPLE
-   Invoke-AsParallelJobs -Credential $c -ComputerName example01 -ScriptBlock {
+   Invoke-AsParallelJob -Credential $c -ComputerName example01 -ScriptBlock {
       Get-Service -DisplayName '*Volume*'
    } | ForEach-Object {
       Write-Host $_.ComputerName
       $_.Result | Format-Table
    }
 #>
-function Invoke-AsParallelJobs
+function Invoke-AsParallelJob
 {
     [CmdletBinding()]
     [OutputType([void])]
