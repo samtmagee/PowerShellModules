@@ -16,25 +16,16 @@
 function ConvertTo-EncodedCommand
 {
     [CmdletBinding()]
-    [Alias()]
-    [OutputType([int])]
+    [OutputType([System.String])]
     Param
     (
         # The scriptblock to convert
         [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
+                   ValueFromPipeline=$true,
                    Position=0)]
         [scriptblock]$ScriptBlock
     )
 
-    Begin
-    {
-    }
-    Process
-    {
-    [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($ScriptBlock));
-    }
-    End
-    {
-    }
+    return [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($ScriptBlock));
 }
