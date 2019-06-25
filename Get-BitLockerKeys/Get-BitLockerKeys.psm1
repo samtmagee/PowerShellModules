@@ -1,90 +1,75 @@
 ﻿<#
 .Synopsis
-   Get the BitLocker keys for the volume(s) of one or many computers.
+   Get the BitLocker key(s) for a computer.
 .DESCRIPTION
-   Long description
+   Get the BitLocker key(s) for the volume(s) of one or many computers.
 .EXAMPLE
-   Example of how to use this cmdlet
+   Get-BitLockerKeys
+   Gets the BitLocker keys for the local machine with a timeout of 60 seconds.
 .EXAMPLE
-   Another example of how to use this cmdlet
+   Get-BitLockerKeys -ComputerName "fresco-desktop","frekky-desktop" -TimeOut 30
+   Gets the BitLocker keys for the computers fresco-desktop and frekky-desktop with a timeout of 30 seconds.
 #>
 function Get-BitLockerKeys
 {
     [CmdletBinding()]
-    [Alias()]
-    [OutputType([int])]
     Param
     (
-        # Param1 working directory
-        $working_directory = "$env:USERPROFILE",
+        # Computer or computers to check for BitLocker keys.
+        [Parameter(Position=0)]
+        [string[]]$ComputerName = "localhost",
 
-        # Param2 searchbase
-        [Parameter(Mandatory=$true)]
-        [string[]]$ComputerName = "localhost"
+        # Timeout in seconds for the Invoke-Command AsJob to run.
+        [int]$TimeOut = 60
     )
 
-    if ((Test-Path "$working_directory\PowerShell") -eq $false) {New-Item -ItemType Directory -Path "$working_directory\PowerShell"}
-    
+    foreach ($remotecomputername in $ComputerName){
+        Invoke-Command -ComputerName $remotecomputername -AsJob -ScriptBlock {
 
-    while ($true) {
-        foreach ($remotecomputername in $ComputerName){
-            Invoke-Command -ComputerName $remotecomputername -AsJob -ScriptBlock {
+            $encryptedvolumes = Get-BitLockerVolume | Where-Object {$_.VolumeStatus -eq "FullyEncrypted"} | sort MountPoint
 
-                $encryptedvolumes = Get-BitLockerVolume | Where-Object {$_.VolumeStatus -eq "FullyEncrypted"} | sort MountPoint
+            [System.Array]$arraytoexport = @()
 
-                [System.Array]$arraytoexport = @()
+            foreach ($mountpoint in $encryptedvolumes)
+            {
+                $encryptedvolumesandkeys = Get-BitLockerVolume $mountpoint | select -ExpandProperty KeyProtector - | Where-Object {$_.KeyProtectorType -eq "RecoveryPassword"} | select KeyProtectorType,KeyProtectorId,RecoveryPassword
 
-                foreach ($mountpoint in $encryptedvolumes)
-                {
-                    $encryptedvolumesandkeys = Get-BitLockerVolume $mountpoint | select -ExpandProperty KeyProtector - | Where-Object {$_.KeyProtectorType -eq "RecoveryPassword"} | select KeyProtectorType,KeyProtectorId,RecoveryPassword #| ft -AutoSize KeyProtectorType,KeyProtectorId,RecoveryPassword
-
-                    $arraytoexport +=[pscustomobject]@{
-                        'Date'=Get-Date
-                        'ComputerName'=$mountpoint.ComputerName
-                        'MountPoint'=$mountpoint.MountPoint
-                        'KeyProtectorType'=$encryptedvolumesandkeys.KeyProtectorType
-                        'KeyProtectorId'=$encryptedvolumesandkeys.KeyProtectorId
-                        'RecoveryPassword'=$encryptedvolumesandkeys.RecoveryPassword
-                    }
+                $arraytoexport +=[pscustomobject]@{
+                    'Date'=Get-Date
+                    'ComputerName'=$mountpoint.ComputerName
+                    'MountPoint'=$mountpoint.MountPoint
+                    'KeyProtectorType'=$encryptedvolumesandkeys.KeyProtectorType
+                    'KeyProtectorId'=$encryptedvolumesandkeys.KeyProtectorId
+                    'RecoveryPassword'=$encryptedvolumesandkeys.RecoveryPassword
                 }
-                $arraytoexport
+            }
+            $arraytoexport
+        } | Out-Null
+    }
+
+    # Receive-Job
+    [system.array]$jobdata = @()
+    $counterchecks = 0
+    while ((Get-Job).count -ne 0 -and $counterchecks -lt $TimeOut){
+        foreach( $job in Get-Job) {
+            if ($job.State -eq [System.Management.Automation.JobState]::Completed) {
+                $jobdata += Receive-Job $job
+                #Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Saved"
+                Remove-Job $job;
+            } elseif ($job.State -eq [System.Management.Automation.JobState]::Failed) {
+                Remove-Job $job;
+                #Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Failed"
+            } elseif ($job.State -eq [System.Management.Automation.JobState]::Disconnected) {
+                Stop-Job $job;
+                Remove-Job $job;
+                #Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Disconnected"
             }
         }
-        #Receive-job
+        $counterchecks ++
+        #Write-Host $counterchecks
+        sleep -Seconds 1
 
-        $counterchecks = 0
-        while ((Get-Job).count -ne 0 -and $counterchecks -lt 100){
-                foreach( $job in Get-Job) {
-                    if ($job.State -eq [System.Management.Automation.JobState]::Completed) {
-                        $jobdata = Receive-Job $job
-                
-                                $jobdata | Export-Csv "$working_directory\BitLocker_Keys.csv" -NoTypeInformation -Append
-
-                        Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Saved"
-                        Remove-Job $job;
-                    } elseif ($job.State -eq [System.Management.Automation.JobState]::Failed) {
-                        Remove-Job $job;
-                        Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Failed"
-                    } elseif ($job.State -eq [System.Management.Automation.JobState]::Disconnected) {
-                        Stop-Job $job;
-                        Remove-Job $job;
-                        Write-Host "$(Get-Date -UFormat `"%Y/%m/%d %H:%M`") - $($job.Location) Disconnected"
-                    }
-                }
-                $counterchecks ++
-                Write-Host $counterchecks
-                sleep -Seconds 1
-        }
-
-        [System.Array]$csvdata = Import-Csv (Get-ChildItem $working_directory -Filter "BitLocker_Keys*.csv").fullname
-        $csvdataunique = $csvdata | sort ComputerName,KeyProtectorId,RecoveryPassword -Unique
-        #$csvdataunique | ft -AutoSize
-        #$csvdata | measure
-        #$csvdataunique | measure
-        $csvdataunique | Export-Csv "$working_directory\BitLocker_Keys_Master.csv" -NoTypeInformation
-        Get-ChildItem $working_directory -Filter "BitLocker_Keys*.csv" | Remove-Item -Exclude "BitLocker_Keys_Master.csv"
-
-        Write-Host "Waiting to run again.  $(Get-Date -UFormat `"%Y/%m/%d %H:%M`")"
-        sleep -Seconds (60 * 5)
     }
+    return $jobdata | sort ComputerName,MountPoint | ft -AutoSize Date,ComputerName,MountPoint,KeyProtectorType,KeyProtectorId,RecoveryPassword
+
 }
