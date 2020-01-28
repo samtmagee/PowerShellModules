@@ -10,10 +10,9 @@
 function Get-RecommendedOSBuild
 {
     [CmdletBinding()]
-    $HTML = Invoke-WebRequest -Uri “https://winreleaseinfoprod.blob.core.windows.net/winreleaseinfoprod/en-US.html“
-    $suggested = ($HTML.ParsedHtml.getElementsByTagName(‘tr’) | Where {$_.className -eq ‘highlight’ }).innerHTML
-    $lines = $suggested.Split([Environment]::NewLine)
-    $linehtml = $lines | select -First 7 | select -Last 1
-    $linehtml = $linehtml -replace "<td>","" -replace "</td>",""
-    return $linehtml
+    $html    = Invoke-WebRequest -Uri 'https://winreleaseinfoprod.blob.core.windows.net/winreleaseinfoprod/en-US.html' | Select-Object -ExpandProperty ParsedHtml
+    $table   = $html.getElementsByTagName('table') | Select-Object -Skip 0 -First 1
+    $row     = $table.getElementsByTagName('tr')   | Select-Object -Skip 1 -First 1
+    $version = $row.getElementsByTagName('td')     | Select-Object -Skip 0 -First 1 -ExpandProperty innerText
+    return $version
 }
