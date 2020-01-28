@@ -1,35 +1,41 @@
 ﻿<#
 .Synopsis
-   Gets the OS name and version.
+    Gets the OS name and version.
 .DESCRIPTION
-   Gets the OS name and version for a local or remote machine Windows 10 gets the Windows Product name (Windows 10 Pro), current build number, and monthly UBR as well as the ReleaseId.
+    Gets the OS name and version for a local or remote machine Windows 10 gets the Windows Product name (Windows 10 Pro), current build number, and monthly UBR as well as the ReleaseId.
 .EXAMPLE
-   Get-WinVer
-   Get the Windows Version for the localhost.
+    Get-WinVer
+    Get the Windows Version for the localhost.
 .EXAMPLE
-   Get-WinVer -ComputerName fresco-pc
-   Get the following details for the remote computer fresco-pc.
+    Get-WinVer -ComputerName fresco-pc
+    Get the following details for the remote computer fresco-pc.
 
-   computername     : fresco-PC
-   major            : 10
-   version          : 1809
-   build            : 17763
-   release          : 379
-   edition          : Education
-   installationtype : Client
-   WinVer           : Windows 10 Education (OS Build 17763.379)
-   PSComputerName   : fresco-pc
-   RunspaceId       : <id>
+    computername     : fresco-PC
+    major            : 10
+    version          : 1809
+    build            : 17763
+    release          : 379
+    edition          : Education
+    installationtype : Client
+    WinVer           : Windows 10 Education (OS Build 17763.379)
+    PSComputerName   : fresco-pc
+    RunspaceId       : <id>
 #>
+
+
 function Get-WinVer
 {
     [CmdletBinding()]
     Param
     (
         # ComputerName or names.  Default is localhost
-        [string[]]$ComputerName = "localhost"
+        [string[]]
+        $ComputerName = "localhost",
+
+        [pscredential]
+        $Credential
     )
-    Invoke-Command -ComputerName $ComputerName -ScriptBlock {
+    Invoke-Command -Credential $Credential -ComputerName $ComputerName -ScriptBlock {
         $CurrentComputerName = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName").ComputerName
         $major = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentMajorVersionNumber
         $version = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ReleaseId
@@ -38,29 +44,25 @@ function Get-WinVer
         $edition = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").EditionID
         $installationtype = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").InstallationType
         $productname = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ProductName
-        
-        if ($installationtype -eq "Server") {
-            $WinVer = "$productname (OS Build $build.$release)"
+
+        $WinVer = if ($installationtype -eq "Server") {
+            "$productname (OS Build $build.$release)"
+        } elseif ($installationtype -eq "Client") {
+            "Windows $major $edition (OS Build $build.$release)"
+        } else {
+            "Not Windows Server or Client OS."
         }
-        if ($installationtype -eq "Client") {
-            $WinVer = "Windows $major $edition (OS Build $build.$release)"
-        }
-        if ($installationtype -ne "Server" -and $installationtype -ne "Client") {
-            $WinVer = "Not Windows Server or Client OS."
-        }
-        $arraytoexport = @()
-        $arraytoexport +=[pscustomobject]@{
-            'computername' = $CurrentComputerName
-            'major' = $major
-            'version' = $version
-            'build' = $build
-            'release' = $release
-            'edition' = $edition
-            'installationtype' = $installationtype
-            'productname' = $productname
+
+        return [pscustomobject]@{
+            'ComputerName' = $CurrentComputerName
+            'Major' = $major
+            'Version' = $version
+            'Build' = $build
+            'Release' = $release
+            'Edition' = $edition
+            'InstallationType' = $installationtype
+            'ProductName' = $productname
             'WinVer' = $WinVer
         }
-        $arraytoexport = $arraytoexport | select computername,major,version,build,release,edition,installationtype,winver -ExcludeProperty RunspaceId
-        return $arraytoexport
-    }
+    } | Select-Object -Property ComputerName, Major, Version, Build, Release, Edition, InstallationType, ProductName, WinVer
 }
