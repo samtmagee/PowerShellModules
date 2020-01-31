@@ -1,0 +1,17 @@
+Amber
+Aqua
+Blue
+Green
+Lime
+Magenta
+Orange
+Purple
+Red
+Teal
+Violet
+Yellow
+fuchsia
+Magenta
+Aqua
+Drab
+Olive
