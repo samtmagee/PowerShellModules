@@ -30,8 +30,7 @@ function New-Password {
     )
 
     $root = $PSScriptRoot
-    # $root = 'C:\Users\mcarter\Documents\WindowsPowerShell\Modules\pwgen'
-    
+
     $mappings = [PSCustomObject]@{
         i = [string[]](Get-Content "$root\sizes.txt")
         g = [string[]](Get-Content "$root\ages.txt")
