@@ -27,7 +27,7 @@ function Set-WindowsProductKey
     )
 
     # Check the product key is in a valid format
-    if ($ProductKey -notmatch '^([a-zA-Z1-9]{5})-([a-zA-Z1-9]{5})-([a-zA-Z1-9]{5})-([a-zA-Z1-9]{5})-([a-zA-Z1-9]{5})$') {
+    if ($ProductKey -notmatch '^([a-zA-Z0-9]{5})-([a-zA-Z0-9]{5})-([a-zA-Z0-9]{5})-([a-zA-Z0-9]{5})-([a-zA-Z0-9]{5})$') {
         Write-Error -Message 'The product key was not in the form XXXXX-XXXXX-XXXXX-XXXXX-XXXXX'
         return
     }
