@@ -26,13 +26,13 @@ function Get-BitLockerKeys
     foreach ($remotecomputername in $ComputerName){
         Invoke-Command -ComputerName $remotecomputername -AsJob -ScriptBlock {
 
-            $encryptedvolumes = Get-BitLockerVolume | Where-Object {$_.VolumeStatus -eq "FullyEncrypted"} | sort MountPoint
+            $encryptedvolumes = Get-BitLockerVolume | Where-Object {$_.VolumeStatus -eq "FullyEncrypted"} | Sort-Object MountPoint
 
             [System.Array]$arraytoexport = @()
 
             foreach ($mountpoint in $encryptedvolumes)
             {
-                $encryptedvolumesandkeys = Get-BitLockerVolume $mountpoint | select -ExpandProperty KeyProtector - | Where-Object {$_.KeyProtectorType -eq "RecoveryPassword"} | select KeyProtectorType,KeyProtectorId,RecoveryPassword
+                $encryptedvolumesandkeys = Get-BitLockerVolume $mountpoint | Select-Object -ExpandProperty KeyProtector - | Where-Object {$_.KeyProtectorType -eq "RecoveryPassword"} | Select-Object KeyProtectorType,KeyProtectorId,RecoveryPassword
 
                 $arraytoexport +=[pscustomobject]@{
                     'Date'=Get-Date
@@ -67,9 +67,9 @@ function Get-BitLockerKeys
         }
         $counterchecks ++
         #Write-Host $counterchecks
-        sleep -Seconds 1
+        Start-Sleep -Seconds 1
 
     }
-    return $jobdata | sort ComputerName,MountPoint | ft -AutoSize Date,ComputerName,MountPoint,KeyProtectorType,KeyProtectorId,RecoveryPassword
+    return $jobdata | Sort-Object ComputerName,MountPoint | Select-Object Date,ComputerName,MountPoint,KeyProtectorType,KeyProtectorId,RecoveryPassword
 
 }
