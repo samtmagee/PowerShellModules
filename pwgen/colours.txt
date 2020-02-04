@@ -1,0 +1,15 @@
+Amber
+Aqua
+Blue
+Green
+Indigo
+Lime
+Magenta
+Olive
+Orange
+Pink
+Purple
+Red
+Teal
+Violet
+Yellow

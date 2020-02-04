@@ -1,0 +1,14 @@
+Wagon
+Bicycle
+Motorcycle
+Car
+Truck
+Bus
+Train
+Tram
+Ship
+Boat
+Hovercraft
+Airplane
+Helicopter
+Spaceship
