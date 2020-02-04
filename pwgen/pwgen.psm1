@@ -3,7 +3,6 @@
     Generates random passwords
 .DESCRIPTION
     This cmdlet can be used to generate random passwords
-    There are two forms for passwords, random and pronounceable.
     Format strings are
         $i => s[i]ze
         $g => a[g]e
@@ -27,8 +26,7 @@
 function New-Password {
     [CmdletBinding()]
     param (
-        [switch]$random = $false,
-        [string]$format = '$i$g$o$l$n$u$u$y'
+        [string]$format = '$d$c$n$s$u$u'
     )
 
     $root = $PSScriptRoot
@@ -64,12 +62,15 @@ function New-Password {
             if ($m) {
                 [void]$outstring.Append($m[$rng.Next($m.Count)]);
             } else {
-                throw "invalid escape sequence '$current'"
+                throw "invalid escape sequence $'$current'"
             }
         } else {
             [void]$outstring.Append($current)
         }
     }
 
-    return $outstring.ToString()
+    return [PSCustomObject]@{
+        Password = $outstring.ToString()
+        SecureString = (ConvertTo-SecureString -String $outstring.ToString() -AsPlainText -Force)
+    }
 }
