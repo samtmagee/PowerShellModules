@@ -19,8 +19,8 @@
         $u => n[u]mber
         $y => s[y]mbol (!$%^&*#+-_=)
     The default format is
-        $d$c$n$s$u$u
-        adjective, colour, noun, 2 numbers, symbol
+        $i$g$o$l$n$u$u$y
+        size, age, colour, element, noun, 2 numbers, symbol
 .EXAMPLE
 #>
 function New-Password {
@@ -37,7 +37,7 @@ function New-Password {
         g = [string[]](Get-Content "$root\ages.txt")
         o = [string[]](Get-Content "$root\colours.txt")
         l = [string[]](Get-Content "$root\elements.txt")
-        d = [string[]](Get-Content "$root\adjectives.txt" | ForEach-Object { (Get-Culture).TextInfo.ToTitleCase($_) })
+        d = [string[]](Get-Content "$root\adjectives.txt")
 
         a = [string[]](Get-Content "$root\animals.txt")
         b = [string[]](Get-Content "$root\buildings.txt")
