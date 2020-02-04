@@ -26,7 +26,7 @@ function Get-BitLockerKeys
     foreach ($remotecomputername in $ComputerName){
         Invoke-Command -ComputerName $remotecomputername -AsJob -ScriptBlock {
 
-            $encryptedvolumes = Get-BitLockerVolume | Where-Object {$_.VolumeStatus -eq "FullyEncrypted"} | sort MountPoint
+            $encryptedvolumes = Get-BitLockerVolume | Where-Object {$_.VolumeStatus -eq "FullyEncrypted"} | Sort-Object MountPoint
 
             [System.Array]$arraytoexport = @()
 
