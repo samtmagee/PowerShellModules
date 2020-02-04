@@ -19,14 +19,14 @@
         $u => n[u]mber
         $y => s[y]mbol (!$%^&*#+-_=)
     The default format is
-        $i$g$o$l$n$u$u$y
-        size, age, colour, element, noun, 2 numbers, symbol
+        $i$o$a$u$y
+        size, colour, animal, numbers, symbol
 .EXAMPLE
 #>
 function New-Password {
     [CmdletBinding()]
     param (
-        [string]$format = '$d$c$n$s$u$u'
+        [string]$format = '$i$o$a$u$y'
     )
 
     $root = $PSScriptRoot
