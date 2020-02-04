@@ -21,24 +21,13 @@ function Invoke-SIMSreport {
         [string]$Path
     )
 
-    $CommandReporter = "C:\Program Files\SIMS\SIMS .net\commandReporter.exe"
-
-    if (!(Test-Path -Path $CommandReporter)) {
-        Write-Error "The file does not exist: $CommandReporter"
-        return
-    }
-
+    # Extract the plaintext passwords from the pscredential
     $NetworkCredential = $Credential.GetNetworkCredential()
     $Username = $NetworkCredential.UserName
     $Password = $NetworkCredential.Password
 
-    $args = @(
-        "/user:$Username",
-        "/password:$Password",
-        "/report:$Report",
-        "/output:$Path"
-    )
-    # Note; this isn't the same as argument splatting,
-    # we're just passing an array to the ArgumentList parameter
-    Start-Process -FilePath $CommandReporter -ArgumentList $args -WorkingDirectory (Get-Location | Select-Object -ExpandProperty Path) -Wait
+    # we have to use the call operator here instead of
+    # Start-Process because they are actually different
+    # and only the call operator works for this usecase.
+    & "C:\Program Files\SIMS\SIMS .net\commandReporter.exe" "/user:$Username" "/password:$Password" "/report:$Report" "/output:$Path"
 }
