@@ -1,6 +1,6 @@
 <#
 .Synopsis
-    Expands {} delimeted strings via a pscustomobject passed in
+    Expands {} delimited strings via a pscustomobject passed in
 .DESCRIPTION
     This cmdlet expands inserts hashtable (pscustomobjects) contents
     into a string.
@@ -16,9 +16,9 @@
     It would find {Name} and {Surname} and use the values from the hashtable to
     create the output
         Hello, John Smith
-    {Name} is replaced with John, and {Surname} is replaced with Smith
+    {Name} is replaced with John, and {Surname} is replaced with Smith.
 
-    If the key is not found within the InputObject, an empty string is inserted
+    If the key is not found within the InputObject, an empty string is inserted.
 .EXAMPLE
     Using a pipe:
 
