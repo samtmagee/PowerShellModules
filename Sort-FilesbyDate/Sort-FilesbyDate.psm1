@@ -32,7 +32,7 @@ function Sort-FilesbyDate {
             Move-Item -Path $file.FullName -Destination $destinationDateDirectory -ErrorAction Stop
         }
         catch [System.IO.IOException] {
-            Write-host "$($error[-1].CategoryInfo.Activity) $($error[-1].CategoryInfo.Category): $($error[-1].Exception.Message) $($file.FullName)" -ForegroundColor Red
+            Write-host "$($error[0].CategoryInfo.Activity) $($error[0].CategoryInfo.Category): $($_.Message) $($file.FullName)" -ForegroundColor Red
         }
         catch {
             Write-host "It was probably nothing, don't worry about it." -ForegroundColor Blue
