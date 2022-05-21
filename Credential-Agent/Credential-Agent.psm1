@@ -1,19 +1,37 @@
 <#
-.Synopsis
-   Short description
+.SYNOPSIS
+    Get-SavedCredential reads a pscredential from a file
 .DESCRIPTION
-   Long description
+    Use this cmdlet to retrieve a clixml encoded pscredential from a file.
+    If not given a filename then this cmdlet looks in the following folders
+    %APPDATA%\Credential-Agent
+    %USERPROFILE%\Credential-Agent
+    $XDG_CONFIG_HOME/Credential-Agent
+    $HOME/Credential-Agent
+    ./
+    for the xml files
+.PARAMETER UserName
+    The username of the credential to retrieve.
+    If a Path is given, then this parameter is ignored but still required.
+.PARAMETER Path
+    If this parameter is given then the UserName is ignored, no folder lookup is performed,
+    and the credential is read from this file directly.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+    Set-SavedCredential -Credential (Get-Credential 'Administrator')
+
+    This will prompt you to enter the password for the Administrator credential.
+    It will save it into a file as described above.
+    
+    To get the credential back (or in another session)
+
+    Get-SavedCredential -UserName 'Administrator'
+
+    The UserName parameter corresponds to the UserName given by the Set-SavedCredential cmdlet
 #>
-function Load-Credential
-{
+function Get-SavedCredential {
     [CmdletBinding()]
     [OutputType([pscredential])]
-    Param
-    (
+    Param (
         # Param1 help description
         [Parameter(Mandatory=$true,
                    Position=0)]
@@ -21,33 +39,69 @@ function Load-Credential
         $UserName,
 
         [System.String]
-        $Path = "$env:APPDATA\password.xml"
+        $Path = $null
     )
 
-    [hashtable]$store = @{};
-    try {
-        [hashtable]$store = Import-Clixml -Path $Path -ErrorAction Stop;
-    } catch {}
-    return [pscredential]$store.Item($UserName);
+    $Filename = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($UserName))
+
+    # If a path was not given
+    if ([string]::IsNullOrEmpty($Path)) {
+
+        # Try these environment variables, in order
+        # Using the current directory '.' as a fallback
+        foreach ($dir in @($env:APPDATA, $env:USERPROFILE, $env:XDG_CONFIG_HOME, $env:HOME, '.')) {
+            # If the variable is set, use it as a prefix to the filename
+            if ($dir.Length -gt 0) {
+                $Path = "$($dir)/Credential-Agent/$($Filename).xml"
+                # Stop after the first set variable
+                break
+            }
+        }
+    }
+
+    # Import the xml file as a pscredential
+    # If the file did not contain a pscredential then an error will be thrown to the caller
+    [pscredential](Import-Clixml -LiteralPath $Path)
 }
 
 
 <#
-.Synopsis
-   Short description
+.SYNOPSIS
+    Set-SavedCredential writes a pscredential to a file
 .DESCRIPTION
-   Long description
+    Use this cmdlet to save a clixml encoded pscredential to a file.
+    If not given a filename then this cmdlet looks in the following folders
+    %APPDATA%\Credential-Agent\
+    %USERPROFILE%\Credential-Agent\
+    $XDG_CONFIG_HOME/Credential-Agent/
+    $HOME/Credential-Agent/
+    ./
+    to save the file
+
+    To get the pscredential back, use the Get-SavedCredential cmdlet and set the UserName parameter
+    to the value of the Username of the pscredential object
+.PARAMETER Credential
+    A pscredential to save into the file
+    The username form the pscredential is used to generate the filename
+.PARAMETER Path
+    If this parameter is given then the UserName is ignored, no folder lookup is performed,
+    and the credential is read from this file directly.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+    Set-SavedCredential -Credential (Get-Credential 'Administrator')
+
+    This will prompt you to enter the password for the Administrator credential.
+    It will save it into a file as described above.
+    
+    To get the credential back (or in another session)
+
+    Get-SavedCredential -UserName 'Administrator'
+
+    The UserName parameter corresponds to the UserName given by the Set-SavedCredential cmdlet
 #>
-function Store-Credential
-{
+function Set-SavedCredential {
     [CmdletBinding()]
-    [OutputType([int])]
-    Param
-    (
+    [OutputType([void])]
+    Param (
         # Param1 help description
         [Parameter(Mandatory=$true,
                    Position=0)]
@@ -55,91 +109,27 @@ function Store-Credential
         $Credential,
 
         [System.String]
-        $Path = "$env:APPDATA\password.xml"
+        $Path = $null
     )
 
-    [hashtable]$store = @{};
-    try {
-        [hashtable]$store = Import-Clixml -Path $Path -ErrorAction Stop;
-    } catch {}
-    $store.Add($Credential.UserName, $Credential);
-    Export-Clixml -Path $Path -InputObject $store;
-}
+    $Filename = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($Credential.UserName))
 
+    # If a path was not given
+    if ([string]::IsNullOrEmpty($Path)) {
 
-<#
-.Synopsis
-   Unstore-Credential removes a credential from the credential store
-.DESCRIPTION
-   Long description
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
-#>
-function Unstore-Credential
-{
-    [CmdletBinding()]
-    [OutputType([int])]
-    Param
-    (
-        # Param1 help description
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
-        [System.String]
-        $UserName,
-
-        [System.String]
-        $Path = "$env:APPDATA\password.xml"
-    )
-
-    [hashtable]$store = Import-Clixml -Path $Path;
-    $store.Remove($UserName);
-    Export-Clixml -Path $Path -InputObject $store;
-}
-
-
-<#
-.Synopsis
-   Stores a credential for the current session only
-.DESCRIPTION
-   This cmdlet stores the credential in a global variable only for the current session.
-   The first time it is run, it asks for the cred.
-   On subsequent runs, it returns the credential that was saved on the first run.
-   If the Update flag is used then the credential is prompted even if it was saved previously and the new credential is saved.
-.EXAMPLE
-   Cache-Credential -UserName 'user'
-.EXAMPLE
-    Cache-Credential -UserName 'user' -Update
-#>
-function Cache-Credential
-{
-    [CmdletBinding()]
-    [OutputType([int])]
-    Param
-    (
-        # Param1 help description
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
-        [System.String]
-        $UserName,
-
-        [switch]
-        $Update
-    )
-
-    if ($null -eq $Global:__mc_cred_cache) {
-        $Global:__mc_cred_cache = @{};
+        # Try these environment variables, in order
+        # Using the current directory '.' as a fallback
+        foreach ($dir in @($env:APPDATA, $env:XDG_CONFIG_HOME, $env:HOME, '.')) {
+            Write-Error $dir
+            # If the variable is set, use it as a prefix to the filename
+            if ($dir.Length -gt 0) {
+                $Path = "$($dir)/Credential-Agent/$($Filename).xml"
+                # Stop after the first set variable
+                break
+            }
+        }
     }
 
-    if (-not $Update -and $Global:__mc_cred_cache.ContainsKey($UserName)) {
-        return $Global:__mc_cred_cache.Item($UserName);
-    } else {
-        $c = Get-Credential $UserName;
-        $Global:__mc_cred_cache.Item($UserName) = $c;
-        return $c;
-    }
-
+    # Export the pscredential to the xml file
+    [void](Export-Clixml -Path $Path -InputObject $Credential)
 }
